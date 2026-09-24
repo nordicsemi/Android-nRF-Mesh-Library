@@ -21,7 +21,7 @@
   -->
 
 <resources>
-    <string name="app_name">nRF Mesh</string>
+    <string name="app_name">nRF Mesh (Old)</string>
     <string name="feature_name">Mesh</string>
     <string name="title_scanner">Scanner</string>
     <string name="sub_title_scanning_nodes">Looking for unprovisioned proxy nodes…</string>
@@ -695,7 +695,7 @@
         If the Mesh Proxy Service is exposed, the node can be configured to advertise with Node Identity on a subnet.</string>
     <string name="title_sensor_information">Sensor Information</string>
     <string name="title_properties_information">Properties Information</string>
-    <string name="properties_loading">Loading...</string>
+    <string name="properties_loading">Loading…</string>
     <string name="properties_non_found">No properties found</string>
     <string name="properties_placeholder">Press \'GET\' to read properties.</string>
     <string name="error_empty_scene_name">Error empty scene name</string>
