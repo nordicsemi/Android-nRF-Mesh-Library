@@ -1,9 +1,6 @@
 # Android-nRF-Mesh-Library
 [ ![Download](https://maven-badges.herokuapp.com/maven-central/no.nordicsemi.android/mesh/badge.svg?style=plastic) ](https://search.maven.org/artifact/no.nordicsemi.android/mesh)
 
- > [!Important]
-> We are now in the process of moving to our newest Bluetooth Mesh library in [Kotlin](https://github.com/NordicSemiconductor/Kotlin-Mesh-Library). This does not mean that this library will be discontinued, but all the newer features will be implemented in the kotlin variant.
-
 ## About
 The Android-nRF-Mesh-Library allows provisioning and sending messages to Bluetooth Mesh devices.
 
@@ -69,7 +66,7 @@ The library may be found on the Maven Central repository.
 Add it to your project by adding the following dependency:
 
 ```groovy
-implementation 'no.nordicsemi.android:mesh:3.4.0'
+implementation 'no.nordicsemi.android:mesh:3.4.1'
 ```
 
 #### Manual
