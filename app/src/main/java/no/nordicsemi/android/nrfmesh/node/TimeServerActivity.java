@@ -33,7 +33,7 @@ import no.nordicsemi.android.nrfmesh.databinding.LayoutTimeServerBinding;
 public class TimeServerActivity extends ModelConfigurationActivity {
 
     private static final String TAG = TimeServerActivity.class.getSimpleName();
-    private static final long TAI_EPOCH_MILLIS = 946684800000L; // 2000-01-01T00:00:00 UTC in milliseconds
+    private static final long TAI_EPOCH_MILLIS = 946684768000L; // 2000-01-01T00:00:00 TAI (1999-12-31T23:59:28 UTC) in milliseconds
 
     private TextView mTaiSecondsText;
     private TextView mSubSecondText;
