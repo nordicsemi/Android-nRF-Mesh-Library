@@ -329,31 +329,19 @@ public class MeshManagerApi implements MeshMngrApi {
                                 return;
                             }
 
-                            final IvIndex receivedIvIndex = receivedBeacon.getIvIndex();
-                            if (receivedIvIndex.getIvIndex() > lastIvIndex.getIvIndex()) {
-                                mMeshNetwork.ivIndex = receivedIvIndex;
-                                MeshLogger.info(TAG, "Applying: " + mMeshNetwork.ivIndex.getIvIndex());
-                            } else {
-                                // This will leave the IV update active state intact or will switch from false to true.
-                                // canOverwrite() ensures this by discarding the secureNetworkBeacon received.
-                                mMeshNetwork.ivIndex.setIvUpdateActive(receivedIvIndex.isIvUpdateActive());
-                                MeshLogger.info(TAG, "Setting IV Update Active to: " + receivedIvIndex.isIvUpdateActive());
+                            // lastIvIndex is the network's own object: it must not be modified,
+                            // or the comparisons below would compare it with itself.
+                            final IvIndexTransition transition = IvIndexTransition.apply(lastIvIndex, receivedBeacon.getIvIndex());
+                            if (transition.ivIndex != lastIvIndex) {
+                                mMeshNetwork.ivIndex = transition.ivIndex;
+                                MeshLogger.info(TAG, "Applying: " + mMeshNetwork.ivIndex);
                             }
 
-                            // If the IV Index used for transmitting messages effectively increased,
-                            // the Node shall reset the sequence number to 0x000000.
-                            if (mMeshNetwork.ivIndex.getTransmitIvIndex() > lastIvIndex.getTransmitIvIndex()) {
+                            if (transition.resetSequenceNumber) {
                                 MeshLogger.info(TAG, "Resetting local sequence numbers to 0");
                                 final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
                                 final ProvisionedMeshNode node = mMeshNetwork.getNode(provisioner.getProvisionerUuid());
                                 node.setSequenceNumber(0);
-                            }
-
-                            //Updating the iv recovery flag
-                            if (lastIvIndex != mMeshNetwork.ivIndex) {
-                                final boolean ivRecovery = mMeshNetwork.getIvIndex().getIvIndex() > lastIvIndex.getIvIndex() + 1
-                                        && !receivedBeacon.getIvIndex().isIvUpdateActive();
-                                mMeshNetwork.getIvIndex().setIvRecoveryFlag(ivRecovery);
                             }
 
                             if (!mMeshNetwork.ivIndex.getIvRecoveryFlag()) {
