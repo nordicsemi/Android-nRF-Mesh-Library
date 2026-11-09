@@ -96,10 +96,9 @@
 
     <string name="ok">OK</string>
     <string name="new_app_title">Try our new nRF Mesh</string>
-    <string name="new_app_message">A brand new nRF Mesh app, rebuilt with Kotlin, is now available on Google Play. The nRF Mesh 1.4.0 already comes with a number important features:\n\n
-        - Network Wizard\n- Automatic connectivity\n\- Quick provisioning and reconfiguration\n- Device Firmware Update (DFU).\n\nIn order to migrate:\n1. Create a new provisioner with a new address or change the address of the existing provisioner.\n2. Export the network.\n3. Import the network in the nRF Mesh app.\n\nThis app will no longer receive newer features.</string>
-    <string name="new_app_row_title">New nRF Mesh</string>>
-    <string name="new_app_row_summary">Get the new nRF Mesh app on Google Play</string>
+    <string name="new_app_message">A brand new nRF Mesh app, rebuilt with Kotlin, is now available on Google Play. The nRF Mesh 1.4.0 already comes with a number important features such as Device Firmware Update (DFU).\n\nIn order to migrate:\n1. Create a new provisioner with a new address or change the address of the existing provisioner.\n2. Export the network.\n3. Import the network in the nRF Mesh app.\n\nThis app will no longer receive newer features.</string>
+    <string name="new_app_row_title">Brand new nRF Mesh</string>>
+    <string name="new_app_row_summary">Get the Brand new nRF Mesh app on Google Play</string>
     <string name="new_app_get">Get new app</string>
     <string name="new_app_later">Later</string>
     <string name="new_app_dont_show_again">Don\'t show again</string>

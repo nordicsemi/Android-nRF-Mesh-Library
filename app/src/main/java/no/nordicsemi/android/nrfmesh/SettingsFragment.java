@@ -174,6 +174,8 @@ public class SettingsFragment extends Fragment implements
         binding.containerNewApp.title.setText(R.string.new_app_row_title);
         binding.containerNewApp.text.setText(R.string.new_app_row_summary);
         binding.containerNewApp.text.setVisibility(View.VISIBLE);
+        binding.containerNewApp.actionOpen.setImageResource(R.drawable.ic_open_in_new_24dp);
+        binding.containerNewApp.actionOpen.setVisibility(View.VISIBLE);
         binding.containerNewApp.getRoot().setOnClickListener(v ->
                 DialogFragmentNewApp.openPlayStore(requireContext()));
 

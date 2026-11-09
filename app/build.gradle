@@ -26,7 +26,7 @@ apply from: rootProject.file("gradle/git-tag-version.gradle")
 
 android {
 
-    compileSdk(37)
+    compileSdkVersion(37)
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
