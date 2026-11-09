@@ -33,7 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogNewAppBinding;
 
 /**
  * Asks the user to switch to the new, Kotlin based nRF Mesh app.
@@ -63,15 +63,20 @@ public class DialogFragmentNewApp extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        return new AlertDialog.Builder(requireContext())
-                .setTitle(R.string.new_app_title)
-                .setMessage(R.string.new_app_message)
-                .setPositiveButton(R.string.new_app_get, (dialog, which) -> openPlayStore(requireContext()))
-                .setNegativeButton(R.string.new_app_later, null)
-                .setNeutralButton(R.string.new_app_dont_show_again, (dialog, which) ->
-                        getPreferences(requireContext()).edit()
-                                .putBoolean(PREF_DONT_SHOW_NEW_APP_DIALOG, true).apply())
+        final DialogNewAppBinding binding = DialogNewAppBinding.inflate(getLayoutInflater());
+        final AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(binding.getRoot())
                 .create();
+        binding.actionGet.setOnClickListener(v -> {
+            openPlayStore(requireContext());
+            dismiss();
+        });
+        binding.actionLater.setOnClickListener(v -> dismiss());
+        binding.actionDontShowAgain.setOnClickListener(v -> {
+            getPreferences(requireContext()).edit().putBoolean(PREF_DONT_SHOW_NEW_APP_DIALOG, true).apply();
+            dismiss();
+        });
+        return dialog;
     }
 
     /**
