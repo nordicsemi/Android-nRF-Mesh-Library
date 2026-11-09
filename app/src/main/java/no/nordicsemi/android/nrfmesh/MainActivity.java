@@ -44,6 +44,7 @@ import com.google.android.material.navigation.NavigationBarView;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.nrfmesh.databinding.ActivityMainBinding;
+import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentNewApp;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 
 @AndroidEntryPoint
@@ -120,6 +121,9 @@ public class MainActivity extends AppCompatActivity implements
 
         if (savedInstanceState == null) {
             onNavigationItemSelected(bottomNavigationView.getMenu().findItem(R.id.action_network));
+            if (DialogFragmentNewApp.shouldShow(this)) {
+                DialogFragmentNewApp.newInstance().show(getSupportFragmentManager(), DialogFragmentNewApp.TAG);
+            }
         } else {
             bottomNavigationView.setSelectedItemId(savedInstanceState.getInt(CURRENT_FRAGMENT));
         }

@@ -126,6 +126,12 @@
                     app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                 <include
+                    android:id="@+id/container_new_app"
+                    layout="@layout/layout_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
                     android:id="@+id/container_version"
                     layout="@layout/layout_container"
                     android:layout_width="match_parent"
