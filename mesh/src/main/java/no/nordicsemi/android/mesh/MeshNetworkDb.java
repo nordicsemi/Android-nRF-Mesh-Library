@@ -135,6 +135,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     };
 
+    /**
+     * Inserts the network and waits until it is stored.
+     * <p>
+     * The network must be stored before it is returned to the user. Otherwise a group, a key or a scene
+     * added in the meantime would be inserted twice: once with the network and once on its own.
+     * </p>
+     */
     void insertNetwork(@NonNull final MeshNetworkDao meshNetworkDao,
                        @NonNull final NetworkKeysDao netKeysDao,
                        @NonNull final ApplicationKeysDao appKeysDao,
@@ -142,8 +149,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
                        @NonNull final ProvisionedMeshNodesDao nodesDao,
                        @NonNull final GroupsDao groupsDao,
                        @NonNull final ScenesDao scenesDao,
-                       @NonNull final MeshNetwork meshNetwork) {
-        databaseWriteExecutor.execute(() -> {
+                       @NonNull final MeshNetwork meshNetwork) throws ExecutionException, InterruptedException {
+        databaseWriteExecutor.submit(() -> {
 
             meshNetworkDao.insert(meshNetwork);
             netKeysDao.insert(new ArrayList<>(meshNetwork.netKeys));
@@ -158,7 +165,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             if (meshNetwork.scenes != null) {
                 scenesDao.insert(new ArrayList<>(meshNetwork.scenes));
             }
-        });
+        }).get();
     }
 
     void loadNetwork(@NonNull final MeshNetworkDao meshNetworkDao,
