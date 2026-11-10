@@ -583,6 +583,19 @@
     <string name="set_as_current_provisioner">Set as current provisioner</string>
     <string name="title_error_network_import">Network Import Error</string>
 
+    <string name="title_iv_index">IV Index</string>
+    <string name="iv_index_normal_operation">%d, Normal Operation</string>
+    <string name="iv_index_update_in_progress">%d, IV Update in Progress</string>
+    <string name="title_iv_update">IV Update</string>
+    <string name="title_initiate_iv_update">Initiate IV Update</string>
+    <string name="title_complete_iv_update">Complete IV Update</string>
+    <string name="initiate_iv_update_message">The connected proxy node will be asked to increment the IV Index
+        and move the network to IV Update in Progress. Nodes accept it only after at least 96 hours in Normal Operation,
+        unless they are in IV Update test mode. Do you want to continue?</string>
+    <string name="complete_iv_update_message">The connected proxy node will be asked to move the network back
+        to Normal Operation, which resets the sequence numbers. Nodes accept it only after at least 96 hours of IV Update
+        in Progress, unless they are in IV Update test mode. Do you want to continue?</string>
+    <string name="iv_update_not_connected">Connect to a proxy node to update the IV Index.</string>
     <string name="title_iv_test_mode">IV Test Mode</string>
     <string name="iv_test_mode_summary">Note: this setting is not restored upon restart.</string>
     <string name="title_heartbeat_publication">Heartbeat Publication</string>

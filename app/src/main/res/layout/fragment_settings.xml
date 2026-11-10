@@ -88,6 +88,12 @@
                     android:layout_height="wrap_content" />
 
                 <include
+                    android:id="@+id/container_iv_index"
+                    layout="@layout/layout_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
                     android:id="@+id/container_iv_test_mode"
                     layout="@layout/layout_container"
                     android:layout_width="match_parent"
