@@ -33,6 +33,7 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -194,6 +195,62 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public void allowIvIndexRecoveryOver42(final boolean allowIvIndexRecoveryOver42) {
         this.allowIvIndexRecoveryOver42 = allowIvIndexRecoveryOver42;
+    }
+
+    @Override
+    public void initiateIvUpdate() {
+        final IvIndex ivIndex = mMeshNetwork.getIvIndex();
+        if (ivIndex.isIvUpdateActive()) {
+            throw new IllegalStateException("IV Update procedure is already in progress");
+        }
+        sendSecureNetworkBeacons(ivIndex.getIvIndex() + 1, true);
+    }
+
+    @Override
+    public void completeIvUpdate() {
+        final IvIndex ivIndex = mMeshNetwork.getIvIndex();
+        if (!ivIndex.isIvUpdateActive()) {
+            throw new IllegalStateException("IV Update procedure is not in progress");
+        }
+        sendSecureNetworkBeacons(ivIndex.getIvIndex(), false);
+    }
+
+    /**
+     * Sends a Secure Network beacon with the given IV Index state to the connected Proxy Node.
+     * <p>
+     * The IV Index of the network is not modified here: it is updated when the Proxy Node
+     * accepts the new state and sends its own Secure Network beacon back.
+     *
+     * @param ivIndex          IV Index to advertise.
+     * @param isIvUpdateActive IV Update flag to advertise.
+     * @throws IllegalStateException if the library would itself discard a beacon with this state.
+     */
+    private void sendSecureNetworkBeacons(final int ivIndex, final boolean isIvUpdateActive) {
+        // A node that has the primary network key disregards beacons received on a secondary subnet.
+        final NetworkKey primaryNetworkKey = mMeshNetwork.getPrimaryNetworkKey();
+        final List<NetworkKey> networkKeys = primaryNetworkKey != null
+                ? Collections.singletonList(primaryNetworkKey)
+                : mMeshNetwork.getNetKeys();
+        final IvIndex lastIvIndex = mMeshNetwork.getIvIndex();
+        final int mtu = mMeshManagerCallbacks.getMtu();
+        for (NetworkKey networkKey : networkKeys) {
+            final byte[] n = networkKey.getTxNetworkKey();
+            final int flags = (networkKey.getPhase() == NetworkKey.USING_NEW_KEYS ? 0x01 : 0x00)
+                    | (isIvUpdateActive ? 0x02 : 0x00);
+            final SecureNetworkBeacon beacon = SecureUtils.createSecureNetworkBeacon(n, flags, SecureUtils.calculateK3(n), ivIndex);
+            // The beacon sent back by the Proxy Node is checked against the same rules, the 96-hour rule
+            // in particular: a state the library would discard must not be sent to the network.
+            if (!beacon.canOverwrite(lastIvIndex, lastIvIndex.getTransitionDate(), lastIvIndex.getIvRecoveryFlag(),
+                    ivUpdateTestModeActive, allowIvIndexRecoveryOver42)) {
+                throw new IllegalStateException("The current IV Index state must last for at least 96 hours"
+                        + " unless the IV Update test mode is active: " + lastIvIndex);
+            }
+            final byte[] pdu = new byte[1 + beacon.beaconData.length];
+            pdu[0] = PDU_TYPE_MESH_BEACON;
+            System.arraycopy(beacon.beaconData, 0, pdu, 1, beacon.beaconData.length);
+            MeshLogger.info(TAG, "Sending " + beacon);
+            mMeshManagerCallbacks.onMeshPduCreated(applySegmentation(mtu, pdu));
+        }
     }
 
     private void initBouncyCastle() {
@@ -359,6 +416,14 @@ public class MeshManagerApi implements MeshMngrApi {
                                         iterator.remove();
                                     }
                                 }
+                            }
+
+                            if (transition.ivIndex != lastIvIndex) {
+                                // Save the new IV Index state and notify the app. This is also how the app
+                                // learns that the Proxy Node accepted initiateIvUpdate() or completeIvUpdate().
+                                mMeshNetworkDb.update(mMeshNetwork, mMeshNetworkDao, mNetworkKeysDao, mApplicationKeysDao,
+                                        mProvisionersDao, mProvisionedNodesDao, mGroupsDao, mScenesDao);
+                                mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
                             }
                         }
                     }
