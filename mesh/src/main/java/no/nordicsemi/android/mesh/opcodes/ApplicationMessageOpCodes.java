@@ -624,4 +624,24 @@ public class ApplicationMessageOpCodes {
      * Opcode for the "Health Fault Get" message
      */
     public static final int HEALTH_FAULT_GET = 0x8031;
+
+    /**
+     * Opcode for the "Health Period Get" message
+     */
+    public static final int HEALTH_PERIOD_GET = 0x8034;
+
+    /**
+     * Opcode for the "Health Period Set" message
+     */
+    public static final int HEALTH_PERIOD_SET = 0x8035;
+
+    /**
+     * Opcode for the "Health Period Set Unacknowledged" message
+     */
+    public static final int HEALTH_PERIOD_SET_UNACKNOWLEDGED = 0x8036;
+
+    /**
+     * Opcode for the "Health Period Status" message
+     */
+    public static final int HEALTH_PERIOD_STATUS = 0x8037;
 }
