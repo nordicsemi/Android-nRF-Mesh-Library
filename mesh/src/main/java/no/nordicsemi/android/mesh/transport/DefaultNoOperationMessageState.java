@@ -537,6 +537,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final TimeRoleStatus timeRoleStatus = new TimeRoleStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(timeRoleStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), timeRoleStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.HEALTH_PERIOD_STATUS) {
+                    final HealthPeriodStatus healthPeriodStatus = new HealthPeriodStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(healthPeriodStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), healthPeriodStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_DEFAULT_TRANSITION_TIME_STATUS) {
                     final GenericDefaultTransitionTimeStatus genericDefaultTransitionTimeStatus = new GenericDefaultTransitionTimeStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(genericDefaultTransitionTimeStatus);
