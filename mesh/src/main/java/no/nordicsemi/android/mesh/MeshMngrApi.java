@@ -271,6 +271,46 @@ interface MeshMngrApi {
     void allowIvIndexRecoveryOver42(final boolean allowIvIndexRecoveryOver42);
 
     /**
+     * Initiates the IV Update procedure, from Normal Operation to IV Update in Progress.
+     * <p>
+     * The library sends to the connected GATT Proxy Node a Secure Network beacon with the
+     * IV Index incremented by one and the IV Update flag set. The Proxy Node processes it as a
+     * beacon received over the advertising bearer and, if it accepts the new state, relays it to
+     * the network and sends its own Secure Network beacon back. The IV Index of the network,
+     * {@link MeshNetwork#getIvIndex()}, is updated when that beacon is received, followed by
+     * {@link MeshManagerCallbacks#onNetworkUpdated(MeshNetwork)}. A Proxy Node that rejects
+     * the new state, for instance because it has not been in Normal Operation for 96 hours,
+     * leaves the IV Index of the network unchanged.
+     * <p>
+     * The beacon is sent with the primary network key, or with every network key if the network
+     * has no primary network key.
+     * - seeAlso: Bluetooth Mesh Profile 1.0.1, section 3.10.5, and Proxy Server behavior.
+     *
+     * @throws IllegalStateException if the IV Update procedure is already in progress, or the network
+     *                               has not been in Normal Operation for 96 hours and the IV Update
+     *                               test mode is disabled.
+     */
+    void initiateIvUpdate();
+
+    /**
+     * Completes the IV Update procedure, from IV Update in Progress to Normal Operation.
+     * <p>
+     * The library sends to the connected GATT Proxy Node a Secure Network beacon with the
+     * current IV Index and the IV Update flag cleared. As in {@link #initiateIvUpdate()}, the
+     * IV Index of the network is updated when the Proxy Node sends the new state back, and the
+     * sequence number of the provisioner is reset to 0 at this point.
+     * <p>
+     * Nodes complete the procedure on their own between 96 and 144 hours after it was initiated;
+     * this method lets the network complete it as soon as the 96 hours are over, or at any time
+     * in IV Update test mode.
+     * - seeAlso: Bluetooth Mesh Profile 1.0.1, section 3.10.5, and Proxy Server behavior.
+     *
+     * @throws IllegalStateException if the IV Update procedure is not in progress, or it has not been
+     *                               in progress for 96 hours and the IV Update test mode is disabled.
+     */
+    void completeIvUpdate();
+
+    /**
      * Exports full mesh network to a json String.
      */
     @Nullable

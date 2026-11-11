@@ -42,9 +42,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
+import no.nordicsemi.android.mesh.IvIndex;
+import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.nrfmesh.databinding.FragmentSettingsBinding;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutContainerBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
+import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentIvUpdate;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImport;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImportMsg;
@@ -66,7 +69,8 @@ import static java.text.DateFormat.getDateTimeInstance;
 public class SettingsFragment extends Fragment implements
         DialogFragmentNetworkName.DialogFragmentNetworkNameListener,
         DialogFragmentResetNetwork.DialogFragmentResetNetworkListener,
-        DialogFragmentMeshImport.DialogFragmentNetworkImportListener {
+        DialogFragmentMeshImport.DialogFragmentNetworkImportListener,
+        DialogFragmentIvUpdate.DialogFragmentIvUpdateListener {
 
     private static final String TAG = SettingsFragment.class.getSimpleName();
     private static final int READ_FILE_REQUEST_CODE = 42;
@@ -134,6 +138,24 @@ public class SettingsFragment extends Fragment implements
         binding.containerScenes.getRoot().setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), ScenesActivity.class)));
 
+        binding.containerIvIndex.image.
+                setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_index));
+        binding.containerIvIndex.title.setText(R.string.title_iv_index);
+        binding.containerIvIndex.text.setVisibility(View.VISIBLE);
+        binding.containerIvIndex.getRoot().setOnClickListener(v -> {
+            final Boolean isConnectedToProxy = mViewModel.isConnectedToProxy().getValue();
+            if (isConnectedToProxy == null || !isConnectedToProxy) {
+                DialogFragmentError.newInstance(getString(R.string.title_iv_update), getString(R.string.iv_update_not_connected))
+                        .show(getChildFragmentManager(), null);
+                return;
+            }
+            final boolean complete = mViewModel.getMeshManagerApi().getMeshNetwork().getIvIndex().isIvUpdateActive();
+            DialogFragmentIvUpdate.newInstance(
+                    getString(complete ? R.string.title_complete_iv_update : R.string.title_initiate_iv_update),
+                    getString(complete ? R.string.complete_iv_update_message : R.string.initiate_iv_update_message),
+                    complete).show(getChildFragmentManager(), null);
+        });
+
         binding.containerIvTestMode.image.
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
         binding.containerIvTestMode.title.setText(R.string.title_iv_test_mode);
@@ -186,6 +208,9 @@ public class SettingsFragment extends Fragment implements
                 binding.containerProvisioners.text.setText(String.valueOf(meshNetworkLiveData.getProvisioners().size()));
                 binding.containerAppKeys.text.setText(String.valueOf(meshNetworkLiveData.getAppKeys().size()));
                 binding.containerScenes.text.setText(String.valueOf(meshNetworkLiveData.getScenes().size()));
+                final IvIndex ivIndex = meshNetworkLiveData.getMeshNetwork().getIvIndex();
+                binding.containerIvIndex.text.setText(getString(ivIndex.isIvUpdateActive() ?
+                        R.string.iv_index_update_in_progress : R.string.iv_index_normal_operation, ivIndex.getIvIndex()));
                 binding.containerLastModified.text.setText(getDateTimeInstance().format(new Date(meshNetworkLiveData.getMeshNetwork().getTimestamp())));
             }
         });
@@ -248,6 +273,21 @@ public class SettingsFragment extends Fragment implements
     @Override
     public void onNetworkImportConfirmed() {
         performFileSearch();
+    }
+
+    @Override
+    public void onIvUpdateConfirmed(final boolean complete) {
+        final MeshManagerApi meshManagerApi = mViewModel.getMeshManagerApi();
+        try {
+            if (complete) {
+                meshManagerApi.completeIvUpdate();
+            } else {
+                meshManagerApi.initiateIvUpdate();
+            }
+        } catch (IllegalStateException e) {
+            DialogFragmentError.newInstance(getString(R.string.title_iv_update), e.getMessage())
+                    .show(getChildFragmentManager(), null);
+        }
     }
 
     /**
