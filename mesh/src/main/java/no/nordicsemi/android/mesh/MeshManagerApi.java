@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -217,7 +218,7 @@ public class MeshManagerApi implements MeshMngrApi {
         mScenesDao = mMeshNetworkDb.scenesDao();
     }
 
-    private void insertNetwork(final MeshNetwork meshNetwork) {
+    private void insertNetwork(final MeshNetwork meshNetwork) throws ExecutionException, InterruptedException {
         meshNetwork.setLastSelected(true);
         //If there is only one provisioner we default to the zeroth
         if (meshNetwork.getProvisioners().size() == 1) {
@@ -784,7 +785,12 @@ public class MeshManagerApi implements MeshMngrApi {
         deleteMeshNetworkFromDb(meshNet);
         final MeshNetwork newMeshNetwork = generateMeshNetwork();
         newMeshNetwork.setCallbacks(callbacks);
-        insertNetwork(newMeshNetwork);
+        try {
+            insertNetwork(newMeshNetwork);
+        } catch (ExecutionException | InterruptedException ex) {
+            mMeshManagerCallbacks.onNetworkLoadFailed(ex.getMessage());
+            return;
+        }
         mMeshNetwork = newMeshNetwork;
         mMeshManagerCallbacks.onNetworkLoaded(newMeshNetwork);
     }
@@ -800,7 +806,12 @@ public class MeshManagerApi implements MeshMngrApi {
         allowIvIndexRecoveryOver42 = false;
         final MeshNetwork newMeshNetwork = generateMeshNetwork();
         newMeshNetwork.setCallbacks(callbacks);
-        insertNetwork(newMeshNetwork);
+        try {
+            insertNetwork(newMeshNetwork);
+        } catch (ExecutionException | InterruptedException ex) {
+            mMeshManagerCallbacks.onNetworkLoadFailed(ex.getMessage());
+            return;
+        }
         mMeshNetwork = newMeshNetwork;
         mMeshManagerCallbacks.onNetworkLoaded(newMeshNetwork);
     }
@@ -1195,7 +1206,12 @@ public class MeshManagerApi implements MeshMngrApi {
             //If there is no network we generate a new one
             if (meshNetwork == null) {
                 network = generateMeshNetwork();
-                insertNetwork(network);
+                try {
+                    insertNetwork(network);
+                } catch (ExecutionException | InterruptedException ex) {
+                    mMeshManagerCallbacks.onNetworkLoadFailed(ex.getMessage());
+                    return;
+                }
             } else {
                 network = meshNetwork;
                 network.loadSequenceNumbers();
